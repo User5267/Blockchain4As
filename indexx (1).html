@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Staking Smart Contract</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.3.6/web3.min.js"></script>
+</head>
+<body>
+    <h1>Staking Smart Contract Interface</h1>
+    <p><strong>Contract Name:</strong>MirasCoin (MIRAS)</p>
+    <p><strong>Owner:</strong> <span id="ownerAddress"></span></p>
+    <p><strong>Your Address:</strong> <span id="userAddress"></span></p>
+    <p><strong>Your Balance:</strong> <span id="userBalance"></span> </p>
+    <p><strong>Your Staked Balance:</strong> <span id="userStakedBalance"></span></p>
+    <p><strong>Your Rewards:</strong> <span id="userRewards"></span></p>
+
+    <button id="stakeButton">Stake</button>
+    <button id="unstakeButton">Unstake</button>
+    <button id="rewardButton">Reward</button>
+
+    <script>
+        // Initialize Web3
+        if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            alert("Web3 is not found. Please install MetaMask or use an Ethereum browser.");
+        }
+
+        // Contract Address
+        const contractAddress = '0xad13628d37f87A3e3157cB2449e14A83E0158f55'; // Replace with your contract address
+
+        // Contract ABI (Application Binary Interface)
+        const contractABI = [
+		
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "initialSupply",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Rewarded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Staked",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Unstaked",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "annualInterestRate",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "decimals",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "reward",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "rewards",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "stake",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "stakedBalance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "stakingDuration",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "stakingStart",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "unstake",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+
+        ];
+
+        // Create a contract instance
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        // User's Ethereum address
+        let userAddress;
+
+        // Function to update user data
+        async function updateUserDetails() {
+            userAddress = await web3.eth.getCoinbase();
+            document.getElementById('userAddress').textContent = userAddress;
+            
+            const userBalance = await contract.methods.balanceOf(userAddress).call();
+            document.getElementById('userBalance').textContent = web3.utils.fromWei(userBalance, 'ether');
+
+            const userStakedBalance = await contract.methods.stakedBalance(userAddress).call();
+            document.getElementById('userStakedBalance').textContent = web3.utils.fromWei(userStakedBalance, 'ether');
+
+            const userRewards = await contract.methods.rewards(userAddress).call();
+            document.getElementById('userRewards').textContent = web3.utils.fromWei(userRewards, 'ether');
+        }
+
+        // Function to stake
+        document.getElementById('stakeButton').addEventListener('click', async () => {
+            const amount = prompt("Enter the amount to stake (in MIRAS):");
+            if (amount) {
+                await contract.methods.stake(web3.utils.toWei(amount, 'ether')).send({ from: userAddress });
+                updateUserDetails();
+            }
+        });
+
+        // Function to unstake
+        document.getElementById('unstakeButton').addEventListener('click', async () => {
+            await contract.methods.unstake().send({ from: userAddress });
+            updateUserDetails();
+        });
+
+        // Function to reward
+        document.getElementById('rewardButton').addEventListener('click', async () => {
+            await contract.methods.reward().send({ from: userAddress });
+            updateUserDetails();
+        });
+
+        async function init() {
+            const owner = await contract.methods.owner().call();
+            document.getElementById('ownerAddress').textContent = owner;
+            updateUserDetails();
+        }
+
+        init();
+    </script>
+</body>
+</html>
